@@ -431,3 +431,229 @@ pub(crate) mod parser_utils {
         }
     */
 }
+
+// ---------------------------------------------------------------------------
+// 5060 Extensions
+// ---------------------------------------------------------------------------
+
+/// Parse a SIP fragment (sipfrag) body as used in REFER NOTIFY messages.
+///
+/// Input: "SIP/2.0 200 OK" or "SIP/2.0 100 Trying"
+/// Returns: (status_code, reason_phrase)
+pub fn parse_sipfrag(body: &str) -> Option<(u16, String)> {
+    let line = body.lines().next()?.trim();
+    if !line.starts_with("SIP/2.0 ") {
+        return None;
+    }
+    let rest = &line["SIP/2.0 ".len()..];
+    let space = rest.find(' ')?;
+    let code: u16 = rest[..space].parse().ok()?;
+    let reason = rest[space + 1..].to_string();
+    Some((code, reason))
+}
+
+/// Parsed Replaces header (RFC 3891).
+///
+/// Format: `Replaces: call-id;to-tag=X;from-tag=Y`
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReplacesHeader {
+    pub call_id: String,
+    pub to_tag: Option<String>,
+    pub from_tag: Option<String>,
+}
+
+impl ReplacesHeader {
+    /// Parse a Replaces header value.
+    pub fn parse(value: &str) -> Option<Self> {
+        let value = value.trim();
+        let parts: Vec<&str> = value.splitn(2, ';').collect();
+        let call_id = parts.first()?.trim().to_string();
+        if call_id.is_empty() {
+            return None;
+        }
+
+        let mut to_tag = None;
+        let mut from_tag = None;
+
+        if let Some(params) = parts.get(1) {
+            for param in params.split(';') {
+                let param = param.trim();
+                if let Some(val) = param.strip_prefix("to-tag=") {
+                    to_tag = Some(val.to_string());
+                } else if let Some(val) = param.strip_prefix("from-tag=") {
+                    from_tag = Some(val.to_string());
+                }
+            }
+        }
+
+        Some(Self { call_id, to_tag, from_tag })
+    }
+
+    /// Serialize to a header value string.
+    pub fn to_header_value(&self) -> String {
+        let mut s = self.call_id.clone();
+        if let Some(ref t) = self.to_tag {
+            s.push_str(&format!(";to-tag={t}"));
+        }
+        if let Some(ref f) = self.from_tag {
+            s.push_str(&format!(";from-tag={f}"));
+        }
+        s
+    }
+}
+
+impl std::fmt::Display for ReplacesHeader {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.to_header_value())
+    }
+}
+
+#[cfg(test)]
+mod ext_tests {
+    use super::*;
+
+    #[test]
+    fn parse_sipfrag_200_ok() {
+        let (code, reason) = parse_sipfrag("SIP/2.0 200 OK").unwrap();
+        assert_eq!(code, 200);
+        assert_eq!(reason, "OK");
+    }
+
+    #[test]
+    fn parse_sipfrag_100_trying() {
+        let (code, reason) = parse_sipfrag("SIP/2.0 100 Trying").unwrap();
+        assert_eq!(code, 100);
+        assert_eq!(reason, "Trying");
+    }
+
+    #[test]
+    fn parse_sipfrag_603_decline() {
+        let (code, reason) = parse_sipfrag("SIP/2.0 603 Decline\r\n").unwrap();
+        assert_eq!(code, 603);
+        assert_eq!(reason, "Decline");
+    }
+
+    #[test]
+    fn parse_sipfrag_invalid() {
+        assert!(parse_sipfrag("not a sip fragment").is_none());
+        assert!(parse_sipfrag("").is_none());
+    }
+
+    #[test]
+    fn parse_replaces_full() {
+        let r = ReplacesHeader::parse("abc123;to-tag=ttag;from-tag=ftag").unwrap();
+        assert_eq!(r.call_id, "abc123");
+        assert_eq!(r.to_tag, Some("ttag".to_string()));
+        assert_eq!(r.from_tag, Some("ftag".to_string()));
+    }
+
+    #[test]
+    fn parse_replaces_no_tags() {
+        let r = ReplacesHeader::parse("call-id-only").unwrap();
+        assert_eq!(r.call_id, "call-id-only");
+        assert!(r.to_tag.is_none());
+        assert!(r.from_tag.is_none());
+    }
+
+    #[test]
+    fn parse_replaces_partial_tags() {
+        let r = ReplacesHeader::parse("cid;from-tag=ft").unwrap();
+        assert_eq!(r.call_id, "cid");
+        assert!(r.to_tag.is_none());
+        assert_eq!(r.from_tag, Some("ft".to_string()));
+    }
+
+    #[test]
+    fn replaces_roundtrip() {
+        let original = "abc123;to-tag=tt;from-tag=ft";
+        let r = ReplacesHeader::parse(original).unwrap();
+        assert_eq!(r.to_header_value(), original);
+    }
+
+    #[test]
+    fn parse_replaces_empty_fails() {
+        assert!(ReplacesHeader::parse("").is_none());
+        assert!(ReplacesHeader::parse("  ").is_none());
+    }
+
+    #[test]
+    fn compact_header_via() {
+        use std::convert::TryInto;
+        use crate::headers::header::Tokenizer;
+        let tok = Tokenizer { name: b"v", value: b"SIP/2.0/UDP 10.0.0.1:5060;branch=z9hG4bK-test" };
+        let header: Header = tok.try_into().unwrap();
+        assert!(matches!(header, Header::Via(_)));
+    }
+
+    #[test]
+    fn compact_header_from() {
+        use std::convert::TryInto;
+        use crate::headers::header::Tokenizer;
+        let tok = Tokenizer { name: b"f", value: b"<sip:alice@example.com>;tag=1234" };
+        let header: Header = tok.try_into().unwrap();
+        assert!(matches!(header, Header::From(_)));
+    }
+
+    #[test]
+    fn compact_header_to() {
+        use std::convert::TryInto;
+        use crate::headers::header::Tokenizer;
+        let tok = Tokenizer { name: b"t", value: b"<sip:bob@example.com>" };
+        let header: Header = tok.try_into().unwrap();
+        assert!(matches!(header, Header::To(_)));
+    }
+
+    #[test]
+    fn compact_header_call_id() {
+        use std::convert::TryInto;
+        use crate::headers::header::Tokenizer;
+        let tok = Tokenizer { name: b"i", value: b"abc123@host" };
+        let header: Header = tok.try_into().unwrap();
+        assert!(matches!(header, Header::CallId(_)));
+    }
+
+    #[test]
+    fn compact_header_contact() {
+        use std::convert::TryInto;
+        use crate::headers::header::Tokenizer;
+        let tok = Tokenizer { name: b"m", value: b"<sip:alice@10.0.0.1>" };
+        let header: Header = tok.try_into().unwrap();
+        assert!(matches!(header, Header::Contact(_)));
+    }
+
+    #[test]
+    fn compact_header_content_length() {
+        use std::convert::TryInto;
+        use crate::headers::header::Tokenizer;
+        let tok = Tokenizer { name: b"l", value: b"0" };
+        let header: Header = tok.try_into().unwrap();
+        assert!(matches!(header, Header::ContentLength(_)));
+    }
+
+    #[test]
+    fn compact_header_content_type() {
+        use std::convert::TryInto;
+        use crate::headers::header::Tokenizer;
+        let tok = Tokenizer { name: b"c", value: b"application/sdp" };
+        let header: Header = tok.try_into().unwrap();
+        assert!(matches!(header, Header::ContentType(_)));
+    }
+
+    #[test]
+    fn compact_header_subject() {
+        use std::convert::TryInto;
+        use crate::headers::header::Tokenizer;
+        let tok = Tokenizer { name: b"s", value: b"Test Subject" };
+        let header: Header = tok.try_into().unwrap();
+        assert!(matches!(header, Header::Subject(_)));
+    }
+
+    #[test]
+    fn compact_header_supported() {
+        use std::convert::TryInto;
+        use crate::headers::header::Tokenizer;
+        let tok = Tokenizer { name: b"k", value: b"timer, replaces" };
+        let header: Header = tok.try_into().unwrap();
+        assert!(matches!(header, Header::Supported(_)));
+    }
+}

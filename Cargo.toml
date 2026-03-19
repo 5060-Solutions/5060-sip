@@ -1,15 +1,16 @@
 [package]
-name = "rsip"
-version = "0.4.0"
-authors = ["Filippos Vasilakis <vasilakisfil@gmail.com>"]
-edition = "2018"
-description = "SIP Rust library, parser & generator of SIP"
-repository = "https://github.com/vasilakisfil/rsip"
-documentation = "https://docs.rs/rsip"
-keywords = ["sip", "3261", "session", "voip", "webrtc"]
+name = "sip-5060"
+version = "0.5.0"
+authors = ["5060 Solutions <josh@5060solutions.com>"]
+edition = "2021"
+description = "RFC 3261 compliant SIP protocol library — parsing, building, typed headers, compact form, sipfrag, Replaces"
+repository = "https://github.com/5060-Solutions/5060-sip"
+keywords = ["sip", "3261", "session", "voip", "pbx"]
 categories = ["parser-implementations", "parsing", "network-programming"]
-license-file = "LICENSE"
+license = "MIT"
 
+[lib]
+name = "rsip"
 
 [workspace]
 members = [
