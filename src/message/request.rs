@@ -168,7 +168,10 @@ pub mod tokenizer {
                     .headers
                     .into_iter()
                     .map(TryInto::try_into)
-                    .collect::<Result<Vec<_>, Error>>()?
+                    .collect::<Result<Vec<crate::Header>, Error>>()?
+                    .into_iter()
+                    .flat_map(|h| h.split_comma_values())
+                    .collect::<Vec<_>>()
                     .into(),
                 body: self.body.into(),
             })

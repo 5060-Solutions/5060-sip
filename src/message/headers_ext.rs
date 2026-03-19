@@ -152,6 +152,22 @@ pub trait HeadersExt: super::HasHeaders {
         header_opt!(self.headers().iter(), Header::MinExpires)
     }
 
+    fn refer_to_header(&self) -> Option<&headers::ReferTo> {
+        header_opt!(self.headers().iter(), Header::ReferTo)
+    }
+
+    fn rack_header(&self) -> Option<&headers::RAck> {
+        header_opt!(self.headers().iter(), Header::RAck)
+    }
+
+    fn event_header(&self) -> Option<&headers::Event> {
+        header_opt!(self.headers().iter(), Header::Event)
+    }
+
+    fn subscription_state_header(&self) -> Option<&headers::SubscriptionState> {
+        header_opt!(self.headers().iter(), Header::SubscriptionState)
+    }
+
     //TODO: this is not correct? this is just the branch id
     //however RFC3261 states clear ways on how transactions should be matched
     fn transaction_id(&self) -> Result<Branch, Error> {

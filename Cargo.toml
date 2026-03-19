@@ -1,9 +1,9 @@
 [package]
 name = "sip-5060"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["5060 Solutions <josh@5060solutions.com>"]
 edition = "2021"
-description = "RFC 3261 compliant SIP protocol library — parsing, building, typed headers, compact form, sipfrag, Replaces"
+description = "RFC 3261 compliant SIP protocol library — parsing, building, typed headers, compact form, header folding, comma-separated splitting, Event/Subscription-State/RAck/RSeq/Refer-To"
 repository = "https://github.com/5060-Solutions/5060-sip"
 keywords = ["sip", "3261", "session", "voip", "pbx"]
 categories = ["parser-implementations", "parsing", "network-programming"]
@@ -18,9 +18,12 @@ members = [
 ]
 
 [dependencies]
+hex = "0.4"
+log = "0.4"
 uuid = { version = "0.8.1", features = ["v4"] }
 bytes = "1.0.1"
 nom = { version = "7.1.0", features = ["alloc"] }
+rand = "0.8"
 rsip-derives = { version = "0.4.0", path = "./rsip-derives" }
 md-5 = "0.9.1"
 sha2 = "0.9.5"

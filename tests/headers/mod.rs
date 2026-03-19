@@ -54,13 +54,44 @@ mod tokenizer {
 
     #[test]
     fn tokenizer1() {
+        // RFC 3261 S7.3.1: CRLF followed by SP/HT is header folding (continuation)
         assert_eq!(
             Tokenizer::tokenize(b"Accept: REGISTER, INVITE\r\n something"),
             Ok((
-                " something".as_bytes(),
+                "".as_bytes(),
+                Tokenizer {
+                    name: "Accept".as_bytes(),
+                    value: "REGISTER, INVITE\r\n something".as_bytes()
+                }
+            )),
+        );
+    }
+
+    #[test]
+    fn tokenizer_no_folding() {
+        // CRLF NOT followed by SP/HT ends the header value
+        assert_eq!(
+            Tokenizer::tokenize(b"Accept: REGISTER, INVITE\r\nNext-Header: value"),
+            Ok((
+                "Next-Header: value".as_bytes(),
                 Tokenizer {
                     name: "Accept".as_bytes(),
                     value: "REGISTER, INVITE".as_bytes()
+                }
+            )),
+        );
+    }
+
+    #[test]
+    fn tokenizer_folding_tab() {
+        // Tab continuation also counts as folding
+        assert_eq!(
+            Tokenizer::tokenize(b"Subject: hello\r\n\tworld\r\n"),
+            Ok((
+                "".as_bytes(),
+                Tokenizer {
+                    name: "Subject".as_bytes(),
+                    value: "hello\r\n\tworld".as_bytes()
                 }
             )),
         );
