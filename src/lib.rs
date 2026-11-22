@@ -484,7 +484,11 @@ impl ReplacesHeader {
             }
         }
 
-        Some(Self { call_id, to_tag, from_tag })
+        Some(Self {
+            call_id,
+            to_tag,
+            from_tag,
+        })
     }
 
     /// Serialize to a header value string.
@@ -576,101 +580,134 @@ mod ext_tests {
 
     #[test]
     fn compact_header_via() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"v", value: b"SIP/2.0/UDP 10.0.0.1:5060;branch=z9hG4bK-test" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"v",
+            value: b"SIP/2.0/UDP 10.0.0.1:5060;branch=z9hG4bK-test",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::Via(_)));
     }
 
     #[test]
     fn compact_header_from() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"f", value: b"<sip:alice@example.com>;tag=1234" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"f",
+            value: b"<sip:alice@example.com>;tag=1234",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::From(_)));
     }
 
     #[test]
     fn compact_header_to() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"t", value: b"<sip:bob@example.com>" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"t",
+            value: b"<sip:bob@example.com>",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::To(_)));
     }
 
     #[test]
     fn compact_header_call_id() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"i", value: b"abc123@host" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"i",
+            value: b"abc123@host",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::CallId(_)));
     }
 
     #[test]
     fn compact_header_contact() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"m", value: b"<sip:alice@10.0.0.1>" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"m",
+            value: b"<sip:alice@10.0.0.1>",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::Contact(_)));
     }
 
     #[test]
     fn compact_header_content_length() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"l", value: b"0" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"l",
+            value: b"0",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::ContentLength(_)));
     }
 
     #[test]
     fn compact_header_content_type() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"c", value: b"application/sdp" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"c",
+            value: b"application/sdp",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::ContentType(_)));
     }
 
     #[test]
     fn compact_header_subject() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"s", value: b"Test Subject" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"s",
+            value: b"Test Subject",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::Subject(_)));
     }
 
     #[test]
     fn compact_header_supported() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"k", value: b"timer, replaces" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"k",
+            value: b"timer, replaces",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::Supported(_)));
     }
 
     #[test]
     fn compact_header_event() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"o", value: b"refer" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"o",
+            value: b"refer",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::Event(_)));
     }
 
     #[test]
     fn header_folding_unfolds_value() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
         use crate::headers::UntypedHeader;
+        use std::convert::TryInto;
         // A folded Subject header: "hello\r\n world" should become "hello world"
-        let tok = Tokenizer { name: b"Subject", value: b"hello\r\n world" };
+        let tok = Tokenizer {
+            name: b"Subject",
+            value: b"hello\r\n world",
+        };
         let header: Header = tok.try_into().unwrap();
         match header {
             Header::Subject(s) => assert_eq!(s.value(), "hello world"),
@@ -680,9 +717,9 @@ mod ext_tests {
 
     #[test]
     fn header_folding_multi_line() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
         use crate::headers::UntypedHeader;
+        use std::convert::TryInto;
         // Multiple folded lines
         let tok = Tokenizer {
             name: b"Subject",
@@ -705,18 +742,28 @@ mod ext_tests {
                             and talk to me!\r\n\
                    Content-Length: 0\r\n\r\n";
         let request: Request = msg.try_into().unwrap();
-        let subject = request.headers.iter().find_map(|h| match h {
-            Header::Subject(s) => Some(s),
-            _ => None,
-        }).expect("Subject header not found");
-        assert_eq!(subject.value(), "I know you're there, pick up the phone and talk to me!");
+        let subject = request
+            .headers
+            .iter()
+            .find_map(|h| match h {
+                Header::Subject(s) => Some(s),
+                _ => None,
+            })
+            .expect("Subject header not found");
+        assert_eq!(
+            subject.value(),
+            "I know you're there, pick up the phone and talk to me!"
+        );
     }
 
     #[test]
     fn subscription_state_header_parsed() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"Subscription-State", value: b"active;expires=600" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"Subscription-State",
+            value: b"active;expires=600",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::SubscriptionState(_)));
     }
@@ -728,13 +775,23 @@ mod ext_tests {
                    Via: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776, SIP/2.0/UDP bigbox3.site3.atlanta.com;branch=z9hG4bK77ef4c2\r\n\
                    Content-Length: 0\r\n\r\n";
         let request: Request = msg.try_into().unwrap();
-        let vias: Vec<_> = request.headers.iter().filter_map(|h| match h {
-            Header::Via(v) => Some(v),
-            _ => None,
-        }).collect();
+        let vias: Vec<_> = request
+            .headers
+            .iter()
+            .filter_map(|h| match h {
+                Header::Via(v) => Some(v),
+                _ => None,
+            })
+            .collect();
         assert_eq!(vias.len(), 2);
-        assert_eq!(vias[0].value(), "SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776");
-        assert_eq!(vias[1].value(), "SIP/2.0/UDP bigbox3.site3.atlanta.com;branch=z9hG4bK77ef4c2");
+        assert_eq!(
+            vias[0].value(),
+            "SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776"
+        );
+        assert_eq!(
+            vias[1].value(),
+            "SIP/2.0/UDP bigbox3.site3.atlanta.com;branch=z9hG4bK77ef4c2"
+        );
     }
 
     #[test]
@@ -744,10 +801,14 @@ mod ext_tests {
                    Route: <sip:proxy1.example.com;lr>, <sip:proxy2.example.com;lr>\r\n\
                    Content-Length: 0\r\n\r\n";
         let request: Request = msg.try_into().unwrap();
-        let routes: Vec<_> = request.headers.iter().filter_map(|h| match h {
-            Header::Route(r) => Some(r),
-            _ => None,
-        }).collect();
+        let routes: Vec<_> = request
+            .headers
+            .iter()
+            .filter_map(|h| match h {
+                Header::Route(r) => Some(r),
+                _ => None,
+            })
+            .collect();
         assert_eq!(routes.len(), 2);
         assert_eq!(routes[0].value(), "<sip:proxy1.example.com;lr>");
         assert_eq!(routes[1].value(), "<sip:proxy2.example.com;lr>");
@@ -760,10 +821,14 @@ mod ext_tests {
                    Via: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776\r\n\
                    Content-Length: 0\r\n\r\n";
         let request: Request = msg.try_into().unwrap();
-        let vias: Vec<_> = request.headers.iter().filter_map(|h| match h {
-            Header::Via(v) => Some(v),
-            _ => None,
-        }).collect();
+        let vias: Vec<_> = request
+            .headers
+            .iter()
+            .filter_map(|h| match h {
+                Header::Via(v) => Some(v),
+                _ => None,
+            })
+            .collect();
         assert_eq!(vias.len(), 1);
     }
 
@@ -774,17 +839,21 @@ mod ext_tests {
                    Subject: Meeting, tomorrow\r\n\
                    Content-Length: 0\r\n\r\n";
         let request: Request = msg.try_into().unwrap();
-        let subject = request.headers.iter().find_map(|h| match h {
-            Header::Subject(s) => Some(s),
-            _ => None,
-        }).expect("Subject header not found");
+        let subject = request
+            .headers
+            .iter()
+            .find_map(|h| match h {
+                Header::Subject(s) => Some(s),
+                _ => None,
+            })
+            .expect("Subject header not found");
         assert_eq!(subject.value(), "Meeting, tomorrow");
     }
 
     #[test]
     fn typed_event_header() {
-        use crate::headers::UntypedHeader;
         use crate::headers::ToTypedHeader;
+        use crate::headers::UntypedHeader;
         let event = crate::headers::Event::new("refer;id=1234");
         let typed = event.typed().unwrap();
         assert_eq!(typed.event_type, "refer");
@@ -794,8 +863,8 @@ mod ext_tests {
 
     #[test]
     fn typed_event_simple() {
-        use crate::headers::UntypedHeader;
         use crate::headers::ToTypedHeader;
+        use crate::headers::UntypedHeader;
         let event = crate::headers::Event::new("presence");
         let typed = event.typed().unwrap();
         assert_eq!(typed.event_type, "presence");
@@ -804,8 +873,8 @@ mod ext_tests {
 
     #[test]
     fn typed_subscription_state_active() {
-        use crate::headers::UntypedHeader;
         use crate::headers::ToTypedHeader;
+        use crate::headers::UntypedHeader;
         let ss = crate::headers::SubscriptionState::new("active;expires=600");
         let typed = ss.typed().unwrap();
         assert_eq!(typed.state, "active");
@@ -815,8 +884,8 @@ mod ext_tests {
 
     #[test]
     fn typed_subscription_state_terminated() {
-        use crate::headers::UntypedHeader;
         use crate::headers::ToTypedHeader;
+        use crate::headers::UntypedHeader;
         let ss = crate::headers::SubscriptionState::new("terminated;reason=timeout");
         let typed = ss.typed().unwrap();
         assert_eq!(typed.state, "terminated");
@@ -825,8 +894,8 @@ mod ext_tests {
 
     #[test]
     fn typed_subscription_state_pending() {
-        use crate::headers::UntypedHeader;
         use crate::headers::ToTypedHeader;
+        use crate::headers::UntypedHeader;
         let ss = crate::headers::SubscriptionState::new("pending;expires=3600;retry-after=120");
         let typed = ss.typed().unwrap();
         assert_eq!(typed.state, "pending");
@@ -836,17 +905,20 @@ mod ext_tests {
 
     #[test]
     fn rack_header_parsed() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"RAck", value: b"776656 1 INVITE" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"RAck",
+            value: b"776656 1 INVITE",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::RAck(_)));
     }
 
     #[test]
     fn typed_rack_header() {
-        use crate::headers::UntypedHeader;
         use crate::headers::ToTypedHeader;
+        use crate::headers::UntypedHeader;
         let rack = crate::headers::RAck::new("776656 1 INVITE");
         let typed = rack.typed().unwrap();
         assert_eq!(typed.response_num, 776656);
@@ -864,26 +936,32 @@ mod ext_tests {
 
     #[test]
     fn refer_to_header_parsed() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"Refer-To", value: b"<sip:alice@atlanta.example.com>" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"Refer-To",
+            value: b"<sip:alice@atlanta.example.com>",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::ReferTo(_)));
     }
 
     #[test]
     fn refer_to_compact_form() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"r", value: b"<sip:alice@atlanta.example.com>" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"r",
+            value: b"<sip:alice@atlanta.example.com>",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::ReferTo(_)));
     }
 
     #[test]
     fn typed_refer_to_header() {
-        use crate::headers::UntypedHeader;
         use crate::headers::ToTypedHeader;
+        use crate::headers::UntypedHeader;
         let rt = crate::headers::ReferTo::new("<sip:alice@atlanta.example.com>");
         let typed = rt.typed().unwrap();
         assert!(typed.display_name.is_none());
@@ -892,8 +970,8 @@ mod ext_tests {
 
     #[test]
     fn typed_refer_to_with_display_name() {
-        use crate::headers::UntypedHeader;
         use crate::headers::ToTypedHeader;
+        use crate::headers::UntypedHeader;
         let rt = crate::headers::ReferTo::new("Alice <sip:alice@atlanta.example.com>");
         let typed = rt.typed().unwrap();
         assert_eq!(typed.display_name, Some("Alice".to_string()));
@@ -908,9 +986,12 @@ mod ext_tests {
 
     #[test]
     fn rseq_header_parsed() {
-        use std::convert::TryInto;
         use crate::headers::header::Tokenizer;
-        let tok = Tokenizer { name: b"RSeq", value: b"776656" };
+        use std::convert::TryInto;
+        let tok = Tokenizer {
+            name: b"RSeq",
+            value: b"776656",
+        };
         let header: Header = tok.try_into().unwrap();
         assert!(matches!(header, Header::RSeq(_)));
     }
@@ -928,7 +1009,6 @@ mod ext_tests {
 // Client-side SIP utilities (migrated from aria-sip-core)
 // ---------------------------------------------------------------------------
 
+pub mod generators;
 pub mod sip_auth;
 pub mod sip_parser;
-pub mod generators;
-

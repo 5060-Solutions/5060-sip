@@ -50,7 +50,8 @@ impl DigestAuth {
             Some(r) if !r.is_empty() => {
                 log::info!(
                     "Auth realm override: challenge had '{}', using '{}' instead",
-                    challenge_realm, r
+                    challenge_realm,
+                    r
                 );
                 r.to_string()
             }
@@ -86,7 +87,10 @@ impl DigestAuth {
             md5_hex
         };
 
-        let ha1 = hash_fn(&format!("{}:{}:{}", self.username, self.realm, self.password));
+        let ha1 = hash_fn(&format!(
+            "{}:{}:{}",
+            self.username, self.realm, self.password
+        ));
         let ha2 = hash_fn(&format!("{}:{}", self.method, self.uri));
 
         if let Some(ref qop) = self.qop {
@@ -232,9 +236,9 @@ mod tests {
     #[test]
     fn test_from_challenge() {
         let challenge = r#"Digest realm="biloxi.com", nonce="abc123", algorithm=MD5, qop="auth""#;
-        let auth = DigestAuth::from_challenge(
-            challenge, "bob", "zanzibar", "sip:biloxi.com", "REGISTER",
-        ).unwrap();
+        let auth =
+            DigestAuth::from_challenge(challenge, "bob", "zanzibar", "sip:biloxi.com", "REGISTER")
+                .unwrap();
         assert_eq!(auth.realm, "biloxi.com");
         assert_eq!(auth.nonce, "abc123");
         assert_eq!(auth.algorithm, "MD5");
@@ -245,9 +249,14 @@ mod tests {
     fn test_from_challenge_with_realm_override() {
         let challenge = r#"Digest realm="biloxi.com", nonce="abc123""#;
         let auth = DigestAuth::from_challenge_with_realm(
-            challenge, "bob", "zanzibar", "sip:biloxi.com", "REGISTER",
+            challenge,
+            "bob",
+            "zanzibar",
+            "sip:biloxi.com",
+            "REGISTER",
             Some("override.com"),
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(auth.realm, "override.com");
     }
 
@@ -255,9 +264,14 @@ mod tests {
     fn test_from_challenge_empty_realm_override_uses_challenge() {
         let challenge = r#"Digest realm="biloxi.com", nonce="abc123""#;
         let auth = DigestAuth::from_challenge_with_realm(
-            challenge, "bob", "zanzibar", "sip:biloxi.com", "REGISTER",
+            challenge,
+            "bob",
+            "zanzibar",
+            "sip:biloxi.com",
+            "REGISTER",
             Some(""),
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(auth.realm, "biloxi.com");
     }
 
@@ -290,10 +304,7 @@ mod tests {
             Some("1ca945e55e9c3f28a8e7249aa2adbe41".into()),
             "nonce must not match cnonce"
         );
-        assert_eq!(
-            extract_param(header, "cnonce"),
-            Some("1eb20305".into()),
-        );
+        assert_eq!(extract_param(header, "cnonce"), Some("1eb20305".into()),);
         assert_eq!(
             extract_param(header, "nc"),
             Some("00000001".into()),
@@ -304,7 +315,10 @@ mod tests {
     #[test]
     fn test_extract_challenge_realm() {
         let header = r#"Digest realm="sip.example.com", nonce="xyz""#;
-        assert_eq!(extract_challenge_realm(header), Some("sip.example.com".into()));
+        assert_eq!(
+            extract_challenge_realm(header),
+            Some("sip.example.com".into())
+        );
     }
 
     #[test]
