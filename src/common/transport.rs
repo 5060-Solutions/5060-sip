@@ -4,8 +4,9 @@ pub use tokenizer::Tokenizer;
 use crate::{Error, Port, Scheme};
 
 /// Simple enum that holds the transport type used (for instance in the `Via` header).
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, Default)]
 pub enum Transport {
+    #[default]
     Udp,
     Tcp,
     Tls,
@@ -86,12 +87,6 @@ impl Transport {
             true => Scheme::Sips,
             false => Scheme::Sip,
         }
-    }
-}
-
-impl Default for Transport {
-    fn default() -> Self {
-        Self::Udp
     }
 }
 

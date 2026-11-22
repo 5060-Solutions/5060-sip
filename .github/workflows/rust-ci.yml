@@ -60,7 +60,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.60.0
+          toolchain: 1.100.0
           override: true
       - run: rustup component add clippy
       - uses: actions-rs/cargo@v1
@@ -83,15 +83,16 @@ jobs:
           override: true
 
       - name: Install cargo-tarpaulin
-        uses: actions-rs/cargo@v1
+        uses: taiki-e/install-action@v2
         with:
-          command: install
-          args: cargo-tarpaulin --version 0.18.0-alpha3 # @TODO restore to normal (https://github.com/xd009642/tarpaulin/issues/756#issuecomment-838769320)
+          tool: cargo-tarpaulin
 
       - name: Run cargo tarpaulin
-        uses: actions-rs/cargo@v1
         env:
           TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-        with:
-          command: tarpaulin
-          args: --coveralls "$TOKEN" --avoid-cfg-tarpaulin # @TODO restore to normal (https://github.com/xd009642/tarpaulin/issues/756#issuecomment-838769320)
+        run: |
+          if [ -n "$TOKEN" ]; then
+            cargo tarpaulin --coveralls "$TOKEN"
+          else
+            cargo tarpaulin
+          fi

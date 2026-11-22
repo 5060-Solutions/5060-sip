@@ -255,7 +255,7 @@ pub mod tokenizer {
             {
                 result.push(' ');
                 i += 3; // skip CRLF + first whitespace char
-                // skip any additional continuation whitespace
+                        // skip any additional continuation whitespace
                 while i < bytes.len() && (bytes[i] == b' ' || bytes[i] == b'\t') {
                     i += 1;
                 }
@@ -306,7 +306,10 @@ pub mod tokenizer {
                     Ok(Header::Authorization(Authorization::new(value.clone())))
                 }
                 s if s.eq_ignore_ascii_case("CSeq") => Ok(Header::CSeq(CSeq::new(value.clone()))),
-                s if s.eq_ignore_ascii_case("Call-Id") || s.eq_ignore_ascii_case("Call-ID") || s == "i" => {
+                s if s.eq_ignore_ascii_case("Call-Id")
+                    || s.eq_ignore_ascii_case("Call-ID")
+                    || s == "i" =>
+                {
                     Ok(Header::CallId(CallId::new(value.clone())))
                 }
                 s if s.eq_ignore_ascii_case("Call-Info") => {
@@ -318,12 +321,12 @@ pub mod tokenizer {
                 s if s.eq_ignore_ascii_case("Content-Disposition") => Ok(
                     Header::ContentDisposition(ContentDisposition::new(value.clone())),
                 ),
-                s if s.eq_ignore_ascii_case("Content-Encoding") || s == "e" => Ok(Header::ContentEncoding(
-                    ContentEncoding::new(value.clone()),
-                )),
-                s if s.eq_ignore_ascii_case("Content-Language") => Ok(Header::ContentLanguage(
-                    ContentLanguage::new(value.clone()),
-                )),
+                s if s.eq_ignore_ascii_case("Content-Encoding") || s == "e" => {
+                    Ok(Header::ContentEncoding(ContentEncoding::new(value.clone())))
+                }
+                s if s.eq_ignore_ascii_case("Content-Language") => {
+                    Ok(Header::ContentLanguage(ContentLanguage::new(value.clone())))
+                }
                 s if s.eq_ignore_ascii_case("Content-Length") || s == "l" => {
                     Ok(Header::ContentLength(ContentLength::new(value.clone())))
                 }
@@ -340,7 +343,9 @@ pub mod tokenizer {
                 s if s.eq_ignore_ascii_case("Expires") => {
                     Ok(Header::Expires(Expires::new(value.clone())))
                 }
-                s if s.eq_ignore_ascii_case("From") || s == "f" => Ok(Header::From(From::new(value.clone()))),
+                s if s.eq_ignore_ascii_case("From") || s == "f" => {
+                    Ok(Header::From(From::new(value.clone())))
+                }
                 s if s.eq_ignore_ascii_case("In-Reply-To") => {
                     Ok(Header::InReplyTo(InReplyTo::new(value.clone())))
                 }
@@ -368,9 +373,7 @@ pub mod tokenizer {
                 s if s.eq_ignore_ascii_case("Proxy-Require") => {
                     Ok(Header::ProxyRequire(ProxyRequire::new(value.clone())))
                 }
-                s if s.eq_ignore_ascii_case("RAck") => {
-                    Ok(Header::RAck(RAck::new(value.clone())))
-                }
+                s if s.eq_ignore_ascii_case("RAck") => Ok(Header::RAck(RAck::new(value.clone()))),
                 s if s.eq_ignore_ascii_case("Record-Route") => {
                     Ok(Header::RecordRoute(RecordRoute::new(value.clone())))
                 }
@@ -389,38 +392,40 @@ pub mod tokenizer {
                 s if s.eq_ignore_ascii_case("Route") => {
                     Ok(Header::Route(Route::new(value.clone())))
                 }
-                s if s.eq_ignore_ascii_case("RSeq") => {
-                    Ok(Header::RSeq(RSeq::new(value.clone())))
-                }
+                s if s.eq_ignore_ascii_case("RSeq") => Ok(Header::RSeq(RSeq::new(value.clone()))),
                 s if s.eq_ignore_ascii_case("Server") => {
                     Ok(Header::Server(Server::new(value.clone())))
                 }
                 s if s.eq_ignore_ascii_case("Subject") || s == "s" => {
                     Ok(Header::Subject(Subject::new(value.clone())))
                 }
-                s if s.eq_ignore_ascii_case("Subscription-State") => Ok(
-                    Header::SubscriptionState(SubscriptionState::new(value.clone())),
-                ),
+                s if s.eq_ignore_ascii_case("Subscription-State") => Ok(Header::SubscriptionState(
+                    SubscriptionState::new(value.clone()),
+                )),
                 s if s.eq_ignore_ascii_case("Supported") || s == "k" => {
                     Ok(Header::Supported(Supported::new(value.clone())))
                 }
                 s if s.eq_ignore_ascii_case("Timestamp") => {
                     Ok(Header::Timestamp(Timestamp::new(value.clone())))
                 }
-                s if s.eq_ignore_ascii_case("To") || s == "t" => Ok(Header::To(To::new(value.clone()))),
+                s if s.eq_ignore_ascii_case("To") || s == "t" => {
+                    Ok(Header::To(To::new(value.clone())))
+                }
                 s if s.eq_ignore_ascii_case("Unsupported") => {
                     Ok(Header::Unsupported(Unsupported::new(value.clone())))
                 }
                 s if s.eq_ignore_ascii_case("User-Agent") => {
                     Ok(Header::UserAgent(UserAgent::new(value.clone())))
                 }
-                s if s.eq_ignore_ascii_case("Via") || s == "v" => Ok(Header::Via(Via::new(value.clone()))),
+                s if s.eq_ignore_ascii_case("Via") || s == "v" => {
+                    Ok(Header::Via(Via::new(value.clone())))
+                }
                 s if s.eq_ignore_ascii_case("Warning") => {
                     Ok(Header::Warning(Warning::new(value.clone())))
                 }
-                s if s.eq_ignore_ascii_case("WWW-Authenticate") => Ok(Header::WwwAuthenticate(
-                    WwwAuthenticate::new(value.clone()),
-                )),
+                s if s.eq_ignore_ascii_case("WWW-Authenticate") => {
+                    Ok(Header::WwwAuthenticate(WwwAuthenticate::new(value.clone())))
+                }
                 _ => Ok(Header::Other(tokenizer.name.into(), value)),
             }
         }
@@ -442,8 +447,7 @@ pub mod tokenizer {
             while pos < input.len() {
                 if input[pos] == b'\r' && pos + 1 < input.len() && input[pos + 1] == b'\n' {
                     // Check if this CRLF is followed by SP or HT (folding)
-                    if pos + 2 < input.len()
-                        && (input[pos + 2] == b' ' || input[pos + 2] == b'\t')
+                    if pos + 2 < input.len() && (input[pos + 2] == b' ' || input[pos + 2] == b'\t')
                     {
                         // Continuation line — skip past CRLF and keep going
                         pos += 2;
@@ -458,21 +462,18 @@ pub mod tokenizer {
             None
         }
 
-        pub fn tokenize(part: &'a [u8]) -> IResult<Self> {
+        pub fn tokenize(part: &'a [u8]) -> IResult<'a, Self> {
             use crate::NomError;
             use nom::{
-                bytes::complete::{take_while1, tag},
+                bytes::complete::{tag, take_while1},
                 character::complete::space0,
                 combinator::rest,
                 sequence::tuple,
             };
 
-            let (after_colon, (name, _, _)) = tuple((
-                take_while1(crate::parser_utils::is_token),
-                tag(":"),
-                space0,
-            ))(part)
-            .map_err(|_: NomError<'a>| TokenizerError::from(("header", part)).into())?;
+            let (after_colon, (name, _, _)) =
+                tuple((take_while1(crate::parser_utils::is_token), tag(":"), space0))(part)
+                    .map_err(|_: NomError<'a>| TokenizerError::from(("header", part)).into())?;
 
             // Try to find end of value with folding support
             if let Some((value_end, consumed)) = Self::find_header_value_end(after_colon) {

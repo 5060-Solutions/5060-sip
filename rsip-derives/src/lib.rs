@@ -248,13 +248,11 @@ pub fn utf8_tokenizer(item: TokenStream) -> TokenStream {
     });
     let raw_fields: Vec<syn::Ident> = fields
         .clone()
-        .into_iter()
-        .filter_map(|f| (!f.is_option).then(|| f.ident))
+        .filter_map(|f| (!f.is_option).then_some(f.ident))
         .collect();
     let option_fields: Vec<syn::Ident> = fields
         .clone()
-        .into_iter()
-        .filter_map(|f| f.is_option.then(|| f.ident))
+        .filter_map(|f| f.is_option.then_some(f.ident))
         .collect();
 
     let expanded = quote! {
@@ -334,7 +332,7 @@ pub(crate) fn kebab_case(struct_name: String) -> String {
                 && (index > 0)
                 && !(struct_name_str_chars[index - 1].is_ascii_uppercase())
             {
-                dashed_struct_name.extend(vec!['-', *c].iter());
+                dashed_struct_name.extend(['-', *c].iter());
             } else {
                 dashed_struct_name.push(*c);
             }

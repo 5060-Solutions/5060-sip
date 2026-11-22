@@ -9,18 +9,18 @@ use std::{error::Error as StdError, fmt};
 /// It has 6 variants:
 ///
 /// * `MissingHeader` that a header that is expected to be found was completely missing.
-/// There are some headers that are required everywhere in SIP, like `From`, `To` etc.
+///   There are some headers that are required everywhere in SIP, like `From`, `To` etc.
 /// * `InvalidParam` means some header parser did not succeed, and the reason for it is
-/// a missing or invalid parameter. Inner `String` should have the nom verbose error about it.
+///   a missing or invalid parameter. Inner `String` should have the nom verbose error about it.
 /// * `ParseError` indicates a general parsing error. Inner `String` should have the verbose nom error
-/// giving hints on what went wrong.
+///   giving hints on what went wrong.
 /// * `TokenizeError` indicates a general tokenizer error. Inner `String` should have the verbose nom error
-/// giving hints on what went wrong. A Tokenizer just tries to break the `bytes` into
-/// parts/components of rsip structs, but never tries to parse/convert to a specific type.
-/// So if a tokenizer fails and you get this error, it means it couldn't even manage to break the
-/// SIP message in the correct breakpoints.
+///   giving hints on what went wrong. A Tokenizer just tries to break the `bytes` into
+///   parts/components of rsip structs, but never tries to parse/convert to a specific type.
+///   So if a tokenizer fails and you get this error, it means it couldn't even manage to break the
+///   SIP message in the correct breakpoints.
 /// * `Utf8Error` indicates that the `from_utf8` std method completely failed. At least you should
-/// get the information regarding which header had this issue.
+///   get the information regarding which header had this issue.
 /// * `Unexpected` indicates any other error.
 ///
 #[derive(Debug, Eq, PartialEq, Clone)]

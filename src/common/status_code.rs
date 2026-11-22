@@ -3,15 +3,16 @@ use crate::Error;
 pub use tokenizer::Tokenizer;
 
 macro_rules! create_status_codes {
-    ($($name:ident => $code:expr),*) => {
+    ($($(#[$attr:meta])* $name:ident => $code:expr),*) => {
 
         /// The SIP [Response](super::super::Response) status code (or response code as SIP main
         /// RFC refers to them). This is not a `Copy` type because in case of an unknown (= not
         /// defined in any SIP RFC) status code, the reason is also provided inside the `Other`
         /// tuple variant.
-        #[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
+        #[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone, Default)]
         pub enum StatusCode {
             $(
+                $(#[$attr])*
                 $name,
             )*
             Other(u16, String),
@@ -73,6 +74,7 @@ create_status_codes!(Trying => 100,
     Queued => 182,
     SessionProgress => 183,
     EarlyDialogTerminated => 199,
+    #[default]
     OK => 200,
     Accepted => 201,
     NoNotification => 204,
@@ -171,12 +173,6 @@ impl StatusCode {
 impl From<StatusCode> for u16 {
     fn from(from: StatusCode) -> u16 {
         from.code()
-    }
-}
-
-impl Default for StatusCode {
-    fn default() -> Self {
-        Self::OK
     }
 }
 
