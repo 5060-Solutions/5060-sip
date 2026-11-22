@@ -10,11 +10,8 @@ pub struct RAckTokenizer<'a> {
 impl<'a> Tokenize<'a> for RAckTokenizer<'a> {
     fn tokenize(part: &'a str) -> Result<Self, Error> {
         use nom::{
-            bytes::complete::take_until,
-            character::complete::space1,
-            combinator::rest,
-            error::VerboseError,
-            sequence::tuple,
+            bytes::complete::take_until, character::complete::space1, combinator::rest,
+            error::VerboseError, sequence::tuple,
         };
 
         let (_, (response_num, _, cseq_num, _, method)) = tuple((

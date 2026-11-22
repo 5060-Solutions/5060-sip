@@ -286,10 +286,7 @@ Content-Length: 0\r\n\r\n";
     fn test_parse_status_code() {
         assert_eq!(parse_status_code(REGISTER_200), Some(200));
         assert_eq!(parse_status_code(INVITE_REQ), None);
-        assert_eq!(
-            parse_status_code("SIP/2.0 401 Unauthorized\r\n"),
-            Some(401)
-        );
+        assert_eq!(parse_status_code("SIP/2.0 401 Unauthorized\r\n"), Some(401));
     }
 
     #[test]
@@ -310,10 +307,7 @@ Content-Length: 0\r\n\r\n";
             extract_cseq_method(REGISTER_200),
             Some("REGISTER".to_string())
         );
-        assert_eq!(
-            extract_cseq_method(INVITE_REQ),
-            Some("INVITE".to_string())
-        );
+        assert_eq!(extract_cseq_method(INVITE_REQ), Some("INVITE".to_string()));
     }
 
     #[test]
@@ -336,24 +330,15 @@ Content-Length: 0\r\n\r\n";
 
     #[test]
     fn test_extract_to_tag() {
-        assert_eq!(
-            extract_to_tag(REGISTER_200),
-            Some("def456".to_string())
-        );
+        assert_eq!(extract_to_tag(REGISTER_200), Some("def456".to_string()));
         // INVITE request has no To tag
         assert_eq!(extract_to_tag(INVITE_REQ), None);
     }
 
     #[test]
     fn test_extract_from_tag() {
-        assert_eq!(
-            extract_from_tag(REGISTER_200),
-            Some("abc123".to_string())
-        );
-        assert_eq!(
-            extract_from_tag(INVITE_REQ),
-            Some("aaa111".to_string())
-        );
+        assert_eq!(extract_from_tag(REGISTER_200), Some("abc123".to_string()));
+        assert_eq!(extract_from_tag(INVITE_REQ), Some("aaa111".to_string()));
     }
 
     #[test]
