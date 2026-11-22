@@ -139,7 +139,7 @@ impl<'a> std::convert::TryFrom<tokenizer::Tokenizer<'a, &'a str, char>> for Host
         };
 
         let port = match tokenizer.port {
-            Some(port) => Some(port.parse::<u16>()?).map(Into::into),
+            Some(port) => Some(port.parse::<u16>()?.into()),
             None => None,
         };
 

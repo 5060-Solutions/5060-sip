@@ -5,17 +5,12 @@ pub use tokenizer::Tokenizer;
 use std::convert::{TryFrom, TryInto};
 
 /// Simple enum that holds the SIP version. Defaults to `Version::V2`.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Default)]
 pub enum Version {
     V1,
+    #[default]
     V2,
     //Custom(String)
-}
-
-impl Default for Version {
-    fn default() -> Self {
-        Self::V2
-    }
 }
 
 impl<'a> TryFrom<&'a [u8]> for Version {

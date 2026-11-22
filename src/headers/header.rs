@@ -458,7 +458,7 @@ pub mod tokenizer {
             None
         }
 
-        pub fn tokenize(part: &'a [u8]) -> IResult<Self> {
+        pub fn tokenize(part: &'a [u8]) -> IResult<'a, Self> {
             use crate::NomError;
             use nom::{
                 bytes::complete::{take_while1, tag},

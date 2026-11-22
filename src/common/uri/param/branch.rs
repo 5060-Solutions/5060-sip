@@ -8,7 +8,7 @@ use rsip_derives::{IntoParam, NewType};
 #[derive(NewType, IntoParam, Debug, PartialEq, Eq, Clone, Ord, PartialOrd, Hash)]
 pub struct Branch(String);
 
-impl<'a> Default for Branch {
+impl Default for Branch {
     fn default() -> Self {
         use uuid::Uuid;
         Self::new(format!("z9hG4bK-rsip-{}", Uuid::new_v4()))

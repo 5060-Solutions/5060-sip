@@ -4,16 +4,11 @@ pub use tokenizer::Tokenizer;
 /// The `Scheme`, as part of the SIP Authorization framework, found in headers like
 /// [Authorization](super::super::typed::Authorization) and
 /// [WwwAuthenticate](super::super::typed::WwwAuthenticate)
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Default)]
 pub enum Scheme {
+    #[default]
     Digest,
     Other(String),
-}
-
-impl Default for Scheme {
-    fn default() -> Self {
-        Self::Digest
-    }
 }
 
 impl std::fmt::Display for Scheme {

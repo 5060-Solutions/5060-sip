@@ -99,14 +99,14 @@
 //! `sips:bob@biloxi.example.com` as in the untyped header above. Hence:
 //! * we specify hat the [scheme](Scheme) of the Uri is `Scheme::Sips`
 //! * we specify the auth part of the Uri, but only the user part which is `Bob`. We do that
-//! using the helpful [Auth](Auth) struct,
+//!   using the helpful [Auth](Auth) struct,
 //! * we specify the host part of the Uri, which is defined in the Uri as
-//! [HostWithPort](HostWithPort) struct.
-//! In our case, it is a simple domain without a port specified.
-//! For that we can use the [Domain](Domain) struct that has an automatic convertion to [HostWithPort](HostWithPort)
-//! struct. In general you will find a lot of helpful `(Try)From/(Try)Into` convertions to remove
-//! boilerplate. According to SIP spec, the URI can hold params (like `method`) and headers,
-//! although in practice none really puts those to a SIP URI. That's why we have defaults in there.
+//!   [HostWithPort](HostWithPort) struct.
+//!   In our case, it is a simple domain without a port specified.
+//!   For that we can use the [Domain](Domain) struct that has an automatic convertion to [HostWithPort](HostWithPort)
+//!   struct. In general you will find a lot of helpful `(Try)From/(Try)Into` convertions to remove
+//!   boilerplate. According to SIP spec, the URI can hold params (like `method`) and headers,
+//!   although in practice none really puts those to a SIP URI. That's why we have defaults in there.
 //!
 //! It is important to note that in order to set the `tag` param, we use the [Tag](param::Tag) struct, found
 //! inside the [param](param) module. In the same module you will find various other params that can be
@@ -272,8 +272,6 @@ pub use message::{Request, Response, SipMessage};
 
 pub use crate::common::uri::*;
 pub use crate::common::*;
-
-pub use crate::message::header_macros::*;
 
 pub mod typed {
     pub use crate::headers::typed::*;

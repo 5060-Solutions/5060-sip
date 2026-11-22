@@ -1,20 +1,15 @@
 /// The `Algorithm`, as part of the SIP Authorization framework, found in headers like
 /// [Authorization](super::super::typed::Authorization) and
 /// [WwwAuthenticate](super::super::typed::WwwAuthenticate)
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
 pub enum Algorithm {
     Md5,
     Md5Sess,
+    #[default]
     Sha256,
     Sha256Sess,
     Sha512,
     Sha512Sess,
-}
-
-impl Default for Algorithm {
-    fn default() -> Self {
-        Self::Sha256
-    }
 }
 
 impl std::fmt::Display for Algorithm {

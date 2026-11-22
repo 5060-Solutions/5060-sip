@@ -5,8 +5,9 @@ use crate::Error;
 
 /// Simple enum that holds the scheme part of a URIs. This type is not a `Copy` type because
 /// it can hold any `Contact` URI, like `mailto` etc.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Default)]
 pub enum Scheme {
+    #[default]
     Sip,
     Sips,
     // A tel scheme from RFC 2806.
@@ -31,12 +32,6 @@ impl Scheme {
             Self::Sips => Ok(true),
             _ => Err(Error::Unexpected("Not sip scheme".into())),
         }
-    }
-}
-
-impl Default for Scheme {
-    fn default() -> Self {
-        Self::Sip
     }
 }
 
